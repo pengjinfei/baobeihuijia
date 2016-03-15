@@ -2,6 +2,10 @@ package com.pengjinfei;
 
 import com.pengjinfei.bean.Child;
 import junit.framework.TestCase;
+import org.apache.poi.xssf.streaming.SXSSFCell;
+import org.apache.poi.xssf.streaming.SXSSFRow;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -50,7 +54,7 @@ public class AppTest extends TestCase {
                 String imgSrc = img.attr("src");
                 String imgName=imgSrc.substring(imgSrc.lastIndexOf("/")+1);
                 InputStream stream = getImg(imgSrc);
-                FileOutputStream writer=new FileOutputStream(System.getProperty("user.dir")+ File.separator+imgName);
+                FileOutputStream writer=new FileOutputStream(System.getProperty("user.home")+ File.separator+imgName);
                 byte[] buff=new byte[1024];
                 int len=0;
                 while ((len=stream.read(buff))!=-1){
@@ -58,8 +62,8 @@ public class AppTest extends TestCase {
                 }
                 stream.close();
                 writer.close();
-                System.out.println(img);
-                System.exit(0);
+                toXml(child);
+                System.exit(1);
             }
         }
     }
@@ -70,13 +74,6 @@ public class AppTest extends TestCase {
             return nodes.get(1).toString();
         }
         return null;
-    }
-
-    @Test
-    public void testView() throws IOException {
-        String href="view.aspx?id=2234";
-        Document view = getView(href);
-        System.out.println(view);
     }
 
     public String parseRequst(Document document,int page) throws UnsupportedEncodingException {
@@ -94,7 +91,7 @@ public class AppTest extends TestCase {
 
     public Document getDocument(String params) throws IOException {
         URL url=new URL("http://www.baobeihuijia.com/result.aspx");
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection(new Proxy(Proxy.Type.HTTP,new InetSocketAddress("10.17.171.11",8080)));
+        HttpURLConnection urlConnection=openConUseProxyIf(url);
         urlConnection.setDoOutput(true);
         urlConnection.setDoInput(true);
 
@@ -114,7 +111,7 @@ public class AppTest extends TestCase {
 
     public Document getView(String href) throws IOException {
         URL url=new URL("http://www.baobeihuijia.com/"+href);
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection(new Proxy(Proxy.Type.HTTP,new InetSocketAddress("10.17.171.11",8080)));
+        HttpURLConnection urlConnection=openConUseProxyIf(url);
         urlConnection.setDoOutput(true);
         urlConnection.setDoInput(true);
         urlConnection.connect();
@@ -125,11 +122,35 @@ public class AppTest extends TestCase {
 
     public InputStream getImg(String href) throws IOException {
         URL url=new URL("http://www.baobeihuijia.com/"+href);
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection(new Proxy(Proxy.Type.HTTP,new InetSocketAddress("10.17.171.11",8080)));
+        HttpURLConnection urlConnection=openConUseProxyIf(url);
         urlConnection.setDoOutput(true);
         urlConnection.setDoInput(true);
         urlConnection.connect();
         InputStream inputStream = urlConnection.getInputStream();
         return  inputStream;
+    }
+
+    public HttpURLConnection openConUseProxyIf(URL url) throws IOException {
+        return (HttpURLConnection) url.openConnection();
+//        return (HttpURLConnection) url.openConnection(new Proxy(Proxy.Type.HTTP,new InetSocketAddress("10.17.171.11",8080)));
+    }
+
+    public void toXml(Child child) throws IOException {
+        SXSSFWorkbook workbook = new SXSSFWorkbook();
+        SXSSFSheet sheet = workbook.createSheet("data");
+        SXSSFRow row = sheet.createRow(1);
+        SXSSFCell cell = row.createCell(1);
+        cell.setCellValue(child.getId());
+
+        cell=row.createCell(2);
+        cell.setCellValue(child.getBirthday());
+
+        FileOutputStream fileOutputStream=new FileOutputStream(System.getProperty("user.home")+File.separator+"child.xlsx");
+        workbook.write(fileOutputStream);
+        fileOutputStream.close();
+
+        //输入查询条件，进入第一页，得到总页数
+
+
     }
 }

@@ -15,6 +15,15 @@ public class Child {
     private String location;
     private String dispearLocation;
     private String discreption;
+    private String url;
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public String getId() {
         return id;
@@ -100,6 +109,7 @@ public class Child {
                 ", location='" + location + '\'' +
                 ", dispearLocation='" + dispearLocation + '\'' +
                 ", discreption='" + discreption + '\'' +
+                ", url='" + url + '\'' +
                 '}';
     }
 }
