@@ -4,6 +4,8 @@ import com.pengjinfei.bean.Child;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,10 +16,11 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by pengjinfei
  * DATE: 3/15/16
- * Description:
+ * Description:将Child存入指定的excel,暂时只支持单线程
  */
 public class ExcelWriter implements Runnable{
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
     private final BlockingQueue<Child> children;
     private String file=System.getProperty("user.home")+ File.separator+"children.xlsx";
 
@@ -45,8 +48,12 @@ public class ExcelWriter implements Runnable{
             Child child;
             try {
                 child = children.take();
+                if (child == UrlChildParser.END_FLAG_CHILD) {
+                    break;
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Thread.currentThread().interrupt();
                 break;
             }
             if (child == null) {
