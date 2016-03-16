@@ -41,7 +41,7 @@ public class UrlChildParser implements Runnable {
                     urlPool.put(END_FLAG_URL);
                     break;
                 }
-                logger.info("开始解析"+url);
+//                logger.info("开始解析"+url);
                 Child child = UrlUtils.parseUrl2Child(url);
                 children.put(child);
             } catch (InterruptedException e) {
