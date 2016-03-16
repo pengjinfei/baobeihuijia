@@ -5,11 +5,13 @@ import com.pengjinfei.thread.ExcelWriter;
 import com.pengjinfei.thread.Spider;
 import com.pengjinfei.thread.UrlChildParser;
 import com.pengjinfei.utils.UrlUtils;
+import org.apache.http.NameValuePair;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -29,7 +31,7 @@ public class Controller {
     private CyclicBarrier childBarrier;
     private final BlockingQueue<String> urlPool = new LinkedBlockingDeque<String>();
     private final BlockingQueue<Child> children = new LinkedBlockingDeque<Child>();
-    private String initParams;
+    private List<NameValuePair> nameValuePairs;
     private int totalPage;
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -63,7 +65,7 @@ public class Controller {
     private void init() {
         try {
             Document document = UrlUtils.initSearch();
-            initParams = UrlUtils.parseInitParams(document);
+            nameValuePairs = UrlUtils.prepareParams(document);
             totalPage = Integer.parseInt(document.getElementById("GridView1_ctl33_Label1").html());
             logger.info("共有" + totalPage + "页的数据需要爬取");
 
@@ -84,14 +86,14 @@ public class Controller {
         if (everyPage * urlParser != totalPage) {
             everyPage++;
         }
-        logger.info("每个线程抓取"+everyPage+"页的数据");
+        logger.info("每个线程抓取" + everyPage + "页的数据");
         for (int i = 0; i < urlParser; i++) {
             int start = i * everyPage + 1;
             int end = start + everyPage;
             if (end > totalPage + 1) {
                 end = totalPage + 1;
             }
-            Spider spider = new Spider(start, end, urlPool, initParams, urlBarrier);
+            Spider spider = new Spider(start, end, urlPool, nameValuePairs, urlBarrier);
             Thread thread = new Thread(spider);
             thread.start();
         }
@@ -116,20 +118,13 @@ public class Controller {
         init();
 
         startParseUrl();
-
         startParseChild();
-
         startWriteExcel();
     }
 
     public static void main(String[] args) {
-        UrlUtils.openProxy();
-        try {
-            Controller controller=new Controller(4,4);
-            controller.start();
-        } finally {
-            UrlUtils.cancelProxy();
-        }
+        Controller controller = new Controller(4, 4);
+        controller.start();
     }
 
 }
