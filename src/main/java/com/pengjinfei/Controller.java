@@ -1,4 +1,4 @@
-package com.pengjinfei.controller;
+package com.pengjinfei;
 
 import com.pengjinfei.bean.Child;
 import com.pengjinfei.thread.ExcelWriter;
