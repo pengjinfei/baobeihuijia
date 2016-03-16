@@ -1,6 +1,5 @@
 package com.pengjinfei.utils;
 
-import com.pengjinfei.Controller;
 import com.pengjinfei.bean.Child;
 import org.jsoup.nodes.Document;
 import org.junit.After;
@@ -53,8 +52,7 @@ public class UrlUtilsTest {
 
     @Test
     public void testController(){
-        Controller controller=new Controller(3,3);
-        controller.start();
+
     }
 
 }
