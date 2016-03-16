@@ -123,7 +123,7 @@ public class Controller {
     }
 
     public static void main(String[] args) {
-        Controller controller = new Controller(4, 4);
+        Controller controller = new Controller(5, 5);
         controller.start();
     }
 

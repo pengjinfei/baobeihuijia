@@ -17,6 +17,7 @@ import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -58,6 +59,8 @@ public class UrlUtils {
 
     private static   DefaultProxyRoutePlanner routePlanner = null;
 
+    private static HttpClientBuilder httpClientBuilder=null;
+
     static {
         ConnectionSocketFactory plainsf = PlainConnectionSocketFactory
                 .getSocketFactory();
@@ -65,7 +68,7 @@ public class UrlUtils {
                 .<ConnectionSocketFactory> create().register("http", plainsf).build();
         httpClientConnectionManager=new PoolingHttpClientConnectionManager(registry);
         httpClientConnectionManager.setMaxTotal(20);
-        httpClientConnectionManager.setDefaultMaxPerRoute(4);
+        httpClientConnectionManager.setDefaultMaxPerRoute(8);
         HttpHost host = new HttpHost(BASE_URL);
         httpClientConnectionManager.setMaxPerRoute(new HttpRoute(host),10);
         // 请求重试处理
@@ -103,14 +106,15 @@ public class UrlUtils {
         };
 
         routePlanner=new DefaultProxyRoutePlanner(new HttpHost("10.17.171.11",8080));
+        httpClientBuilder = HttpClients.custom()
+                .setConnectionManager(httpClientConnectionManager)
+                .setRetryHandler(httpRequestRetryHandler)
+                .setRoutePlanner(routePlanner);
     }
 
     public static CloseableHttpClient getHttpClient(){
-        return  HttpClients.custom()
-                .setConnectionManager(httpClientConnectionManager)
-                .setRetryHandler(httpRequestRetryHandler)
-                .setRoutePlanner(routePlanner)
-                .build();
+
+        return httpClientBuilder.build();
     }
 
     //设置请求消息头
