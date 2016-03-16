@@ -136,6 +136,7 @@ public class UrlUtils {
         HttpEntity entity = response.getEntity();
         Document document = Jsoup.parse(entity.getContent(),"UTF-8",BASE_URL);
         EntityUtils.consume(entity);
+        response.close();
 
         Child child = new Child();
         child.setId(href.replace("view.aspx?id=", ""));
@@ -201,6 +202,7 @@ public class UrlUtils {
         HttpEntity entity = httpResponse.getEntity();
         Document document = Jsoup.parse(entity.getContent(), "UTF-8", BASE_URL);
         EntityUtils.consume(entity);
+        httpResponse.close();
         return document;
     }
 
