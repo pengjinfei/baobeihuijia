@@ -105,8 +105,9 @@ public class UrlUtils {
         String imgSrc = img.attr("src");
         String imgName = imgSrc.substring(imgSrc.lastIndexOf("/") + 1);
         if (!imgName.startsWith("none")) {
-            child.setUrl(imgName);
-            saveImg(imgSrc);
+            /*child.setUrl(imgName);
+            saveImg(imgSrc);*/
+            child.setUrl(BASE_URL+imgSrc);
         }
         return child;
     }
